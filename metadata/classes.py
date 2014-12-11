@@ -3,9 +3,9 @@
 from __future__ import unicode_literals
 
 import time
-import parsedatetime
 from datetime import datetime
 
+import parsedatetime
 import utils
 
 
