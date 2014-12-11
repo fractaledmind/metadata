@@ -1,26 +1,19 @@
 #!/usr/bin/env python
 # encoding: utf-8
-#
-# Copyright © 2014 stephen.margheim@gmail.com
-#
-# MIT Licence. See http://opensource.org/licenses/MIT
-#
-# Created on 9 December 2014
-#
 from __future__ import unicode_literals
 
 import sys
-import time
 import itertools
 import subprocess
-import parsedatetime
-from datetime import datetime
 
 import utils
 
-
+# TODO: organize attributes into groups
+import time
 ATTR_GROUPS = {
     "File System Metadata Attribute Keys": [
+import parsedatetime
+from datetime import datetime
         "kMDItemDisplayName",
         "kMDItemFSContentChangeDate",
         "kMDItemFSCreationDate",
@@ -172,7 +165,12 @@ ATTR_GROUPS = {
 
 
 def get_all_attributes():
-    """Get dictionary of all possible metadata attributes."""
+    """Return list of dictionaries with data for all OS X metadata attributes
+
+    :returns: data on all OS X metadata attributes
+    :rtype: ``list`` of ``dict``s
+
+    """
     # get all OS X metadata attributes
     attributes = utils.decode(subprocess.check_output(['mdimport', '-A']))
     # prepare key names for the four columns
@@ -184,6 +182,10 @@ def get_all_attributes():
             for attribute in attributes.splitlines()]
     return data
 
+# dynamically generate module attribute objects
+__module = sys.modules[__name__]
+__attributes = get_all_attributes()
+for __info in __attributes:
 
 class MDAttribute(object):
 
@@ -377,35 +379,10 @@ class MDExpression(object):
         return clean_units
 
 
-# dynamically generate module attribute objects
-__module = sys.modules[__name__]
-__attributes = get_all_attributes()
-# prepare attribute group lists
-#file_system, image, audio, video, common = ([], [], [], [], [])
-for __info in __attributes:
     __name = utils.clean_attribute(__info['id'])
-    """
-    for _group, ids in ATTR_GROUPS.items():
-        # ensure item matches to group
-        if __info['id'] in ids:
-            # add group name to `__info` dict
-            __info.update({'group': _group})
-            __info.update({'key': __name})
-            # add `__info` dict to proper sub-group
-            if 'Image' in _group:
-                image.append(__info)
-            elif 'Audio' in _group:
-                audio.append(__info)
-            elif 'Video' in _group:
-                video.append(__info)
-            elif 'Common' in _group:
-                common.append(__info)
-            elif 'File System' in _group:
-                file_system.append(__info)
-        print(__info)
-    """
     setattr(__module, __name, MDAttribute(__info))
 
+# set ``attributes.all``, filtering out non metadata
 all = [attr
        for attr in __module.__dict__.keys()
        if not attr.startswith('__')
