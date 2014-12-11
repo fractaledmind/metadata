@@ -270,10 +270,10 @@ class MDAttribute(object):
 
 
 class MDComparison(object):
-    def __init__(self, attribute, operator, value):
+    def __init__(self, attribute, operator, predicate):
         self.attribute = attribute
         self.operator = operator
-        self.value = value
+        self.predicate = predicate
         self.cal = parsedatetime.Calendar()
 
     def format(self):
@@ -283,9 +283,9 @@ class MDComparison(object):
         else:
             # check if attribute is date attribute
             if 'date' in self.attribute.key:
-                query_val = self._parse_date_value(self.value)
+                query_val = self._parse_date_value(self.predicate)
             else:
-                quoted_val = self._quote_value(self.value)
+                quoted_val = self._quote_value(self.predicate)
                 query_val = self._modify_comparison(quoted_val)
             query = [self.attribute.id, self.operator, query_val]
             return ' '.join(query)
@@ -328,8 +328,8 @@ class MDComparison(object):
 
     def _format_inrange(self):
         if 'date' in self.attribute.key:
-            min_v = self._parse_date_value(self.value[0])
-            max_v = self._parse_date_value(self.value[1])
+            min_v = self._parse_date_value(self.predicate[0])
+            max_v = self._parse_date_value(self.predicate[1])
         else:
             min_v, max_v = self.value
         return 'InRange({0}, {1}, {2})'.format(self.attribute.id,
