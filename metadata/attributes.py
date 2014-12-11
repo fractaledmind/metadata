@@ -233,19 +233,19 @@ class MDAttribute(object):
         return MDComparison(self, '!=', value)
 
     def __lt__(self, value):
-        if self._date_check():
+        if self._comparison_check(value):
             return MDComparison(self, '<', value)
 
     def __gt__(self, value):
-        if self._date_check():
+        if self._comparison_check(value):
             return MDComparison(self, '>', value)
 
     def __le__(self, value):
-        if self._date_check():
+        if self._comparison_check(value):
             return MDComparison(self, '<=', value)
 
     def __ge__(self, value):
-        if self._date_check():
+        if self._comparison_check(value):
             return MDComparison(self, '>=', value)
 
     def in_range(self, min_value, max_value):
@@ -254,11 +254,19 @@ class MDAttribute(object):
 
     # Helper method  ----------------------------------------------------------
 
-    def _date_check(self):
+    def _comparison_check(self, value):
         if 'date' in self.key:
             return True
+        elif isinstance(value, int):
+            return True
+        elif isinstance(value, float):
+            return True
         else:
-            raise Exception('Invalid operator for non-date attribute')
+            try:
+                int(value)
+                return True
+            except TypeError:
+                raise Exception('Invalid operator for non-date attribute')
 
 
 class MDComparison(object):
