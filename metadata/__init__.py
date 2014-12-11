@@ -6,5 +6,5 @@ __author__ = 'Stephen Margheim'
 __license__ = 'MIT'
 __copyright__ = 'Copyright © 2014 Stephen Margheim'
 
-from functions import find, ls, write
+from functions import find, list, write
 import attributes

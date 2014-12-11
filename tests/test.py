@@ -124,15 +124,15 @@ class MDTests(unittest.TestCase):
     def test_find_blank(self):
         exp = self.comp1 & self.comp3
         blank_path = md.find(exp, only_in=self.pdf_dir)
-        self.assertEqual(blank_path, self.blank_pdf)
+        self.assertEqual(blank_path, [self.blank_pdf])
 
     def test_find_essay(self):
         essay_path = md.find(self.comp2, only_in=self.pdf_dir)
-        self.assertEqual(essay_path, self.essay_pdf)
+        self.assertEqual(essay_path, [self.essay_pdf])
 
     def test_find_visual(self):
         visual_path = md.find(self.comp4, only_in=self.pdf_dir)
-        self.assertEqual(visual_path, self.visual_pdf)
+        self.assertEqual(visual_path, [self.visual_pdf])
 
     def test_find_all(self):
         # test time comparisons
@@ -142,18 +142,18 @@ class MDTests(unittest.TestCase):
         all_pdfs = [self.blank_pdf, self.visual_pdf, self.essay_pdf]
         self.assertEqual(sorted(paths), sorted(all_pdfs))
 
-    def test_ls_visual(self):
-        meta = md.ls(self.visual_pdf)
+    def test_list_visual(self):
+        meta = md.list(self.visual_pdf)
         logical_size = meta['logical_size']
         self.assertEqual(logical_size, 149385)
 
-    def test_ls_essay(self):
-        meta = md.ls(self.essay_pdf)
+    def test_list_essay(self):
+        meta = md.list(self.essay_pdf)
         author = meta['authors'][0]
         self.assertEqual(author, 'Tōnÿ Stårk')
 
-    def test_ls_blank(self):
-        meta = md.ls(self.blank_pdf)
+    def test_list_blank(self):
+        meta = md.list(self.blank_pdf)
         creation = meta['content_creation_date']
         self.assertEqual(creation, '2014-12-10 17:05:10 +0000')
 
