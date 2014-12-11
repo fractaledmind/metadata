@@ -113,6 +113,12 @@ find(exp)
 
 ### `ls`
 In addition to `find()`, the module has `ls`, which is a wrapper around the `mdls` command. You simply pass it a file path and it returns a dictionary of metadata attributes and values. Once again, the attribute names (the dictionary keys) are simplified using the `clean_key` function seen above. 
+```
+from metadata import ls
+
+file_metadata = ls(file_path)
+print(file_metadata['name']
+```
 
 ### `write`
 Finally, there is an alpha version of a `write()` function, which allows you to write metadata to a file. Right now, I have it defaulted to writing to the `kMDItemUserTags` attribute, but a few others have worked. I need to test it more to make it more general. 
