@@ -345,6 +345,9 @@ class MDComparison(object):
         """
         cal = parsedatetime.Calendar()
         struct_time = cal.parse(predicate)
+        if struct_time[1] == 0:
+            msg = 'Datetime string not parsed : `{}` '.format(predicate)
+            raise Exception(msg)
         timestamp = time.mktime(struct_time[0])
         iso_date = datetime.fromtimestamp(timestamp).isoformat()
         return '$time.iso({})'.format(iso_date)
