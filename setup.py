@@ -29,7 +29,7 @@ setup(
     long_description=readme,
     author='Stephen Margheim',
     author_email='stephen.margheim@gmail.com',
-    url='http://www.hackademic.postach.io',
+    url='https://github.com/smargh/metadata',
     packages=['metadata'],
     install_requires=requires,
     license='MIT'
