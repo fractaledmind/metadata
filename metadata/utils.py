@@ -305,214 +305,67 @@ ASCII_REPLACEMENTS = {
 }
 
 
-class IOUtils(object):
-    def __init__(self):
-        self.util = TextUtils()
+## Subprocess wrapper  --------------------------------------------------------
 
-    def set_clipboard(self, data):
-        """Set clipboard to `data`"""
-        text = self.util.decode(data)
-        self.run_process(['pbcopy', 'w'], text)
-
-    def get_clipboard(self):
-        """Retrieve data from clipboard"""
-        return self.run_process(['pbpaste'])
-
-    def run_process(self, cmd, stdin=None):
-        # Is command shell string or list of args?
-        shell = True
-        if isinstance(cmd, list):
-            shell = False
-        # Set shell lang to UTF8
-        os.environ['LANG'] = 'en_US.UTF-8'
-        # Open pipes
-        proc = subprocess.Popen(cmd,
-                                shell=shell,
-                                stdin=subprocess.PIPE,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
-        # Run command, with optional input
-        if stdin:
-            (stdout, stderr) = proc.communicate(input=stdin.encode('utf-8'))
-        else:
-            (stdout, stderr) = proc.communicate()
-        if '\\U' in stdout:
-            stdout = stdout.replace('\\U', '\\u').decode('unicode-escape')
-        # Convert newline delimited str into clean list
-        output = filter(None, [s.strip()
-                               for s in self.util.decode(stdout).split('\n')])
-        if len(output) == 0:
-            return None
-        elif len(output) == 1:
-            return output[0]
-        else:
-            return output
+def run_process(cmd, stdin=None):
+    # Is command shell string or list of args?
+    shell = True
+    if isinstance(cmd, list):
+        shell = False
+    # Set shell lang to UTF8
+    os.environ['LANG'] = 'en_US.UTF-8'
+    # Open pipes
+    proc = subprocess.Popen(cmd,
+                            shell=shell,
+                            stdin=subprocess.PIPE,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+    # Run command, with optional input
+    if stdin:
+        (stdout, stderr) = proc.communicate(input=stdin.encode('utf-8'))
+    else:
+        (stdout, stderr) = proc.communicate()
+    if '\\U' in stdout:
+        stdout = stdout.replace('\\U', '\\u').decode('unicode-escape')
+    # Convert newline delimited str into clean list
+    output = filter(None, [s.strip()
+                           for s in decode(stdout).split('\n')])
+    if len(output) == 0:
+        return None
+    elif len(output) == 1:
+        return output[0]
+    else:
+        return output
 
 
-class TextUtils(object):
+## Text Encoding  ---------------------------------------------------------
 
-    ## Text Encoding  ---------------------------------------------------------
+def decode(text, encoding='utf-8', normalization='NFC'):
+    """Convert `text` to unicode
 
-    def decode(self, text, encoding='utf-8', normalization='NFC'):
-        """Convert `text` to unicode
-
-        """
-        if isinstance(text, basestring):
-            if not isinstance(text, unicode):
-                text = unicode(text, encoding)
-        return unicodedata.normalize(normalization, text)
-
-    def isascii(self, text):
-        """Test if ``text`` contains only ASCII characters
-
-        :param text: text to test for ASCII-ness
-        :type text: ``unicode``
-        :returns: ``True`` if ``text`` contains only ASCII characters
-        :rtype: ``Boolean``
-        """
-
-        try:
-            self.decode(text).encode('ascii')
-        except UnicodeEncodeError:
-            return False
-        return True
-
-    def fold_to_ascii(self, text, on_error='ignore'):
-        """Convert non-ASCII characters to closest ASCII equivalent.
-
-        :param text: text to convert
-        :type text: ``unicode``
-        :returns: text containing only ASCII characters
-        :rtype: ``unicode``
-        """
-        if on_error not in ('backslashreplace', 'replace',
-                            'ignore', 'xmlcharrefreplace'):
-            on_error = 'ignore'
-        if self.isascii(text):
-            return text
-        text = ''.join([ASCII_REPLACEMENTS.get(c, c)
-                        for c in self.decode(text)])
-        return unicode(unicodedata.normalize('NFKD',
-                       text).encode('ascii', on_error)).strip()
-
-    ## Text Formatting  -------------------------------------------------------
-
-    def slugify(self, text, max_length=0, separator='_'):
-        """ Make a slug from the given text """
-
-        # text to unicode
-        text = self.decode(text)
-
-        # convert CamelCase to under_score
-        text = self.convert_camel(text)
-
-        # decode unicode ('Компьютер' = kompiuter)
-        text = self.fold_to_ascii(text)
-
-        # text back to unicode
-        text = self.decode(text)
-
-        # replace unwanted characters
-            # replace ' with nothing instead with -
-        text = re.sub(r'[\']+', '', text.lower())
-        text = re.sub(r'[^-a-z0-9]+', '-', text.lower())
-
-        # remove redundant -
-        text = re.sub(r'-{2,}', '-', text).strip('-')
-
-        # smart truncate if requested
-        if max_length > 0:
-            text = self.smart_truncate(text, max_length, '-')
-
-        if separator != '-':
-            text = text.replace('-', separator)
-
-        return text
-
-    def smart_truncate(self, text, max_len=0, separator=' '):
-        """Truncate a text with intelligent options.
-
-        :param text: text to convert
-        :type text: ``unicode``
-        :param max_len: length of characters in `text` to return
-        :type max_len: ``int``
-        :param separator: text to convert
-        :type separator: ``unicode``
-        :returns: text containing only ASCII characters
-        :rtype: ``unicode``
-        """
-
-        text = self.decode(text).strip(separator)
-
-        if not max_len:
-            return text
-
-        if len(text) < max_len:
-            return text
-
-        if separator not in text:
-            return text[:max_len]
-
-        truncated = ''
-        for word in text.split(separator):
-            if word:
-                next_len = len(truncated) + len(word) + len(separator)
-                if next_len <= max_len:
-                    truncated += '{0}{1}'.format(word, separator)
-        if not truncated:
-            truncated = text[:max_len]
-        return truncated.strip(separator)
-
-    def convert_camel(self, camel_case):
-        """Convert CamelCase to underscore_format."""
-        camel_re = re.compile(r'((?<=[a-z0-9])[A-Z]|(?!^)[A-Z](?=[a-z]))')
-        under = camel_re.sub(r'_\1', self.decode(camel_case)).lower()
-        return under.replace('__', '_')
-
-    def normalise_whitespace(s):
-        """Returns a string that has at most one whitespace
-        character between non-whitespace characters. We
-        leave a few extra spaces because most NLP parsers
-        don't tend to care.
-        >>> normalise_whitespace(' hi   there')
-        ' hi there'
-        >>> normalise_whitespace('meh\n\n\f')
-        'meh '
-        """
-        return re.sub(r'\s+', ' ', s)
-
-    def clean_key(self, key):
-        uid = key.replace('kMDItemFS', '')\
-                 .replace('kMDItem', '')\
-                 .replace('kMD', '')\
-                 .replace('com_', '')\
-                 .replace(' ', '')
-        return self.convert_camel(uid)
-
-    ## File Searching ---------------------------------------------------------
-
-    def find_name(self, name):  # pragma: no cover
-        """Use `mdfind` to locate file given its ``name``.
-
-        :param name: full name of desired file
-        :type name: ``unicode`` or ``str``
-        :returns: list of paths to named file
-        :rtype: :class:`list`
-
-        """
-        cmd = ['mdfind',
-               'kMDItemFSName={}'.format(name),
-               '-onlyin',
-               '/']
-        output = subprocess.check_output(cmd)
-        # Convert newline delimited str into clean list
-        output = [s.strip() for s in self.decode(output).split('\n')]
-        return filter(None, output)
+    """
+    if isinstance(text, basestring):
+        if not isinstance(text, unicode):
+            text = unicode(text, encoding)
+    return unicodedata.normalize(normalization, text)
 
 
-# aliases
-io = IOUtils()
-text = TextUtils()
+## Text Formatting  -------------------------------------------------------
+
+def convert_camel(camel_case):
+    """Convert CamelCase to underscore_format."""
+    camel_re = re.compile(r'((?<=[a-z0-9])[A-Z]|(?!^)[A-Z](?=[a-z]))')
+    under = camel_re.sub(r'_\1', decode(camel_case)).lower()
+    return under.replace('__', '_')
+
+
+def clean_key(key):
+    uid = key.replace('kMDItemFS', '')\
+             .replace('kMDItem', '')\
+             .replace('kMD', '')\
+             .replace('com_', '')\
+             .replace(' ', '')
+    return convert_camel(uid)
 
 
 if __name__ == '__main__':

@@ -2,11 +2,11 @@
 # encoding: utf-8
 from __future__ import unicode_literals
 
-from utils import io, text
+import utils
 
 
 def ls(file_path):
-    output = io.run_process(['mdls', file_path])
+    output = utils.run_process(['mdls', file_path])
     # get metadata into list, allowing for nested attributes
     md = [[y.strip()
            for y in line.split('=')]
@@ -20,7 +20,7 @@ def ls(file_path):
             k, v = item
             # if second item is parens, then first is key
             if v == '(':
-                listed_key = text.clean_key(k)
+                listed_key = utils.clean_key(k)
             # else, it's a simple `key: value` pair
             else:
                 # attempt to convert to `int`
@@ -31,7 +31,7 @@ def ls(file_path):
                 # convert shell nulls to Python `None`
                 if val in ('""', '(null)'):
                     val = None
-                key = text.clean_key(k)
+                key = utils.clean_key(k)
                 md_dict[key] = val
         # single item is part of a nested attribute
         elif len(item) == 1 and item[0] != ')':
@@ -55,7 +55,7 @@ def find(query_expression, only_in=None):
     cmd.append(query)
     # run `mdfind` command as shell string, since otherwise it breaks
     #print(' '.join(cmd))
-    return io.run_process(' '.join(cmd))
+    return utils.run_process(' '.join(cmd))
 
 
 def write(file_path, tag_list, attr_name='kMDItemUserTags'):
@@ -78,7 +78,7 @@ def write(file_path, tag_list, attr_name='kMDItemUserTags'):
            xattr,
            tag_text.encode("utf8"),
            file_path]
-    return io.run_process(cmd)
+    return utils.run_process(cmd)
 
 
 if __name__ == '__main__':

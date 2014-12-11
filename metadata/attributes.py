@@ -16,7 +16,7 @@ import subprocess
 import parsedatetime
 from datetime import datetime
 
-from utils import text
+import utils
 
 
 ATTR_GROUPS = {
@@ -174,7 +174,7 @@ ATTR_GROUPS = {
 def get_all_attributes():
     """Get dictionary of all possible metadata attributes."""
     # get all OS X metadata attributes
-    attributes = text.decode(subprocess.check_output(['mdimport', '-A']))
+    attributes = utils.decode(subprocess.check_output(['mdimport', '-A']))
     # prepare key names for the four columns
     keys = ('id', 'name', 'description', 'aliases')
     # create list of dicts, mapping ``keys`` to an item's columns
@@ -192,7 +192,7 @@ class MDAttribute(object):
         self._ignore_diacritics = ignore_diacritics
         for k, v in info.items():
             setattr(self, k, v)
-        self.key = text.clean_key(self.id)
+        self.key = utils.clean_key(self.id)
 
     def format(self):
         return self.id
@@ -383,7 +383,7 @@ __attributes = get_all_attributes()
 # prepare attribute group lists
 #file_system, image, audio, video, common = ([], [], [], [], [])
 for __info in __attributes:
-    __name = text.clean_key(__info['id'])
+    __name = utils.clean_key(__info['id'])
     """
     for _group, ids in ATTR_GROUPS.items():
         # ensure item matches to group
