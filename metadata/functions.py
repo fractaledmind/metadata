@@ -5,17 +5,50 @@ from __future__ import unicode_literals
 import utils
 
 
+def find(query_expression, only_in=None):
+    """Wrapper for OS X `mdfind` command.
+
+    :param query_expression: file metadata query expression
+    :type query_expression: :class:`MDExpression` object or
+        :class:`MDComparison` object.
+    :param only_in: limit search scope to directory tree path
+    :type only_in: ``unicode``
+    :returns: full paths to files of any results
+    :rtype: ``list``
+
+    """
+    cmd = ['mdfind']
+    # add option to limit search scoe
+    if only_in:
+        cmd.append('-onlyin')
+        cmd.append(only_in)
+    # convert `query_expression` into file metadata query expression syntax
+    query = "'" + unicode(query_expression) + "'"
+    cmd.append(query)
+    # run `mdfind` command as shell string, since otherwise it breaks
+    #print(' '.join(cmd))
+    return utils.run_process(' '.join(cmd))
+
+
 def list(file_path):
+    """Wrapper for OS X `mdls` command.
+
+    :param file_path: full path to file
+    :type file_path: ``unicode``
+    :returns: dictionary of metadata attributes and values
+    :rtype: ``dict``
+
+    """
     output = utils.run_process(['mdls', file_path])
     # get metadata into list, allowing for nested attributes
     md = [[y.strip()
            for y in line.split('=')]
           for line in output]
-    listed_item = []
-    md_dict = {}
     # iterate over list to deal with nested attributes
     # then build dictionary
+    listed_item, md_dict = [], {}
     for item in md:
+        # item is pair
         if len(item) == 2:
             k, v = item
             # if second item is parens, then first is key
@@ -44,22 +77,16 @@ def list(file_path):
     return md_dict
 
 
-def find(query_expression, only_in=None):
-    cmd = ['mdfind']
-    # add option to limit search scoe
-    if only_in:
-        cmd.append('-onlyin')
-        cmd.append(only_in)
-    # convert `query_expression` into file metadata query expression syntax
-    query = "'" + unicode(query_expression) + "'"
-    cmd.append(query)
-    # run `mdfind` command as shell string, since otherwise it breaks
-    #print(' '.join(cmd))
-    return utils.run_process(' '.join(cmd))
-
-
 def write(file_path, tag_list, attr_name='kMDItemUserTags'):
-    """Writes the list of tags to xattr field of `file_path`
+    """Writes the list of tags to xattr field of ``file_path``
+
+    :param file_path: full path to file
+    :type file_path: ``unicode``
+    :param tag_list: values to write to attributes
+    :type tag_list: ``list``
+    :param attr_name: full name of OS X file metadata attribute
+    :type attr_name: ``unicode``
+
     """
     tag_data = ['<string>{}</string>'.format(tag) for tag in tag_list]
     tag_data.insert(0, ('<!DOCTYPE plist PUBLIC'
