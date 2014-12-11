@@ -106,7 +106,7 @@ type_exp = metadata.attributes.content_type == "public.audio" | metadata.attribu
 final_exp = author_exp & type_exp
 ```
 
-Here's a complex expression to find only audio or video files that have been changed in the last week authored by someone named either "Stephen" or "Daniel" (ignoring case and diacritics, so it would match a file authored by "Danièl"):
+Here's a complex expression to find only audio or video files that have been changed in the last week authored by someone named either "Stephen" or "Daniel" (ignoring case and diacritics, so it would match a file authored by "danièl"):
 ```
 author_exp = (metadata.attributes.authors == "daniel") | (metadata.attributes.authors == "stephen")
 type_exp = (metadata.attributes.content_type == "public.audio") | (metadata.attributes.content_type == "public.video")
