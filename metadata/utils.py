@@ -36,19 +36,12 @@ def run_process(cmd, stdin=None):
     # Run command, with optional input
     if stdin:
         stdout, stderr = proc.communicate(input=decode(stdin).encode('utf-8'))
-    if '\\U' in stdout:
-        stdout = stdout.replace('\\U', '\\u').decode('unicode-escape')
     else:
         stdout, stderr = proc.communicate()
     # Convert newline delimited str into clean list
     output = filter(None, [s.strip()
                            for s in decode(stdout).split('\n')])
-    if len(output) == 0:
-        return None
-    elif len(output) == 1:
-        return output[0]
-    else:
-        return output
+    return output
 
 
 ## Text Encoding  ---------------------------------------------------------
@@ -71,6 +64,9 @@ def decode(text, encoding='utf-8', normalization='NFC'):
     if isinstance(text, basestring):
         if not isinstance(text, unicode):
             text = unicode(text, encoding)
+    # decode Cocoa/CoreFoundation Unicode to Python Unicode
+    if '\\U' in text:
+        text = text.replace('\\U', '\\u').decode('unicode-escape')
     return unicodedata.normalize(normalization, text)
 
 
