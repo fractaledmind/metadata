@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 import utils
 
 
-def ls(file_path):
+def list(file_path):
     output = utils.run_process(['mdls', file_path])
     # get metadata into list, allowing for nested attributes
     md = [[y.strip()
