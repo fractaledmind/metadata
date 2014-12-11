@@ -2,3 +2,5 @@
 *.pyc
 parsedatetime
 dev.py
+metadata.sublime-project
+metadata.sublime-workspace
