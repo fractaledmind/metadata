@@ -178,6 +178,20 @@ class MDAttribute(object):
 
 
 class MDComparison(object):
+    """Represents an OS X Spotlight file metadata query comparison.
+
+    You probably shouldn't use this class directly, but by comparing a
+    :class:`MDAttribute` to a predicate.
+
+    :param attribute: the subject of the comparison
+    :type attribute: :class:`MDAttribute`
+    :param operator: the type of comparison
+    :type operator: ``unicode``
+    :param predicate: the predicate of the comparison
+    :type predicate: ``unicode`` or ``int`` or ``float``
+
+    """
+
     def __init__(self, attribute, operator, predicate):
         self.attribute = attribute
         self.operator = operator
