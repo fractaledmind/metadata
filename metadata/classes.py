@@ -10,10 +10,24 @@ import utils
 
 
 class MDAttribute(object):
+    """Represents an OS X Spotlight Metadata Attribute
+
+    You probably shouldn't use this class directly, but via
+    :mod:`~metadata.attributes`.
+
+    :param info: `id`, `name`, `description`, and `aliases` for attribute.
+    :type info: :class:`dict`
+    :param ignore_case: ignore case in :class:`MDComparison`.
+    :type ignore_case: :class:`Boolean`
+    :param ignore_diacritics: ignore diacritics in :class:`MDComparison`.
+    :type ignore_diacritics: :class:`Boolean`
+
+    """
 
     def __init__(self, info, ignore_case=True, ignore_diacritics=True):
         self._ignore_case = ignore_case
         self._ignore_diacritics = ignore_diacritics
+        # set data attributes from ``info`` dictionary
         for k, v in info.items():
             setattr(self, k, v)
         self.key = utils.clean_attribute(self.id)
@@ -38,51 +52,117 @@ class MDAttribute(object):
 
     @property
     def ignore_case(self):
+        """Ignore case in :class:`MDComparison`.
+
+        """
         return self._ignore_case
 
     @ignore_case.setter
     def ignore_case(self, value):
-        self._ignore_case = value
+        """Change ignore case in :class:`MDComparison`.
+
+        Defaults to ``True`` if ``value`` anything except ``False``.
+
+        """
+        self._ignore_case = bool(value)
 
     @property
     def ignore_diacritics(self):
+        """Ignore diacritics in :class:`MDComparison`.
+
+        """
         return self._ignore_diacritics
 
     @ignore_diacritics.setter
     def ignore_diacritics(self, value):
-        self._ignore_diacritics = value
+        """Change ignore diacritics in :class:`MDComparison`.
 
-    # Comparison Operators  ---------------------------------------------------
+        Defaults to ``True`` if ``value`` anything except ``False``.
+
+        """
+        self._ignore_diacritics = bool(value)
+
+    # Comparison Magic Operators  ---------------------------------------------
 
     def __eq__(self, value):
+        """Defines behavior for the equality operator, ==.
+
+        :returns: :class:`MDComparison` object
+
+        """
         return MDComparison(self, '==', value)
 
     def __ne__(self, value):
+        """Defines behavior for the inequality operator, !=.
+
+        :returns: :class:`MDComparison` object
+
+        """
         return MDComparison(self, '!=', value)
 
     def __lt__(self, value):
+        """Defines behavior for the less-than operator, <.
+
+        ``value`` must be a number or a date.
+
+        :returns: :class:`MDComparison` object
+
+        """
         if self._comparison_check(value):
             return MDComparison(self, '<', value)
 
     def __gt__(self, value):
+        """Defines behavior for the greater-than operator, >.
+
+        ``value`` must be a number or a date.
+
+        :returns: :class:`MDComparison` object
+
+        """
         if self._comparison_check(value):
             return MDComparison(self, '>', value)
 
     def __le__(self, value):
+        """Defines behavior for the less-than-or-equal-to operator, <=.
+
+        ``value`` must be a number or a date.
+
+        :returns: :class:`MDComparison` object
+
+        """
         if self._comparison_check(value):
             return MDComparison(self, '<=', value)
 
     def __ge__(self, value):
+        """Defines behavior for the greater-than-or-equal-to operator, >=.
+
+        ``value`` must be a number or a date.
+
+        :returns: :class:`MDComparison` object
+
+        """
         if self._comparison_check(value):
             return MDComparison(self, '>=', value)
 
     def in_range(self, min_value, max_value):
+        """Defines behavior for the range operation.
+
+        ``min_value`` and ``max_value`` must be a number or a date.
+
+        :returns: :class:`MDComparison` object
+
+        """
         value = (min_value, max_value)
         return MDComparison(self, 'InRange', value)
 
     # Helper method  ----------------------------------------------------------
 
     def _comparison_check(self, value):
+        """Ensure ``value`` is number or date.
+
+        :returns: ``Boolean`` or ``Exception``
+
+        """
         if 'date' in self.key:
             return True
         elif isinstance(value, int):
