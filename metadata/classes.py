@@ -35,14 +35,14 @@ class MDAttribute(object):
     # Representation Magic Methods  -------------------------------------------
 
     def __str__(self):
-        """Return :class:`str` representation of the :class:`MDComparison`
+        """Return :class:`str` representation of the :class:`MDAttribute`
         object. The :class:`str` representation is a UTF8 encoded string.
 
         """
         return str(self.__unicode__().encode('utf-8'))
 
     def __unicode__(self):
-        """Return :class:`unicode` representation of the :class:`MDComparison`
+        """Return :class:`unicode` representation of the :class:`MDAttribute`
         object.
 
         """
