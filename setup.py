@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 import os
 import sys
-#import codecs
+import codecs
 
 import metadata
 
@@ -19,14 +19,14 @@ if sys.argv[-1] == 'publish':
 
 requires = ['parsedatetime']
 
-#with codecs.open('README.rst', 'r', 'utf-8') as f:
-#    readme = f.read()
+with codecs.open('README.md', 'r', 'utf-8') as f:
+    readme = f.read()
 
 setup(
     name=metadata.__title__,
     version=metadata.__version__,
     description='Python wrapper for OS X `mdfind`.',
-    long_description='readme',
+    long_description=readme,
     author='Stephen Margheim',
     author_email='stephen.margheim@gmail.com',
     url='http://www.hackademic.postach.io',
