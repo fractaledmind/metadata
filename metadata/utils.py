@@ -466,7 +466,8 @@ class TextUtils(object):
     def convert_camel(self, camel_case):
         """Convert CamelCase to underscore_format."""
         camel_re = re.compile(r'((?<=[a-z0-9])[A-Z]|(?!^)[A-Z](?=[a-z]))')
-        return camel_re.sub(r'_\1', self.decode(camel_case)).lower()
+        under = camel_re.sub(r'_\1', self.decode(camel_case)).lower()
+        return under.replace('__', '_')
 
     def normalise_whitespace(s):
         """Returns a string that has at most one whitespace
