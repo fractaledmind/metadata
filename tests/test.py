@@ -20,6 +20,7 @@ if __name__ == '__main__':
 
 from metadata import attributes
 from metadata import functions as md
+from metadata import MDAttribute, MDComparison, MDExpression
 
 
 def setUp():
@@ -39,7 +40,7 @@ class MDTests(unittest.TestCase):
                     'name': 'Tags',
                     'id': 'kMDItemUserTags',
                     'description': 'Tags associated with this item'}
-        self.attr1 = attributes.MDAttribute(tag_info,
+        self.attr1 = MDAttribute(tag_info,
                                             ignore_case=False,
                                             ignore_diacritics=False)
         self.attr2 = attributes.name
@@ -70,9 +71,9 @@ class MDTests(unittest.TestCase):
     def test_attributes(self):
         self.assertFalse(self.attr1.ignore_case)
         # test module `MDAttribute` objects
-        self.assertIsInstance(self.attr2, attributes.MDAttribute)
-        self.assertIsInstance(self.attr3, attributes.MDAttribute)
-        self.assertIsInstance(self.attr4, attributes.MDAttribute)
+        self.assertIsInstance(self.attr2, MDAttribute)
+        self.assertIsInstance(self.attr3, MDAttribute)
+        self.assertIsInstance(self.attr4, MDAttribute)
 
     def test_mdattribute_formatting(self):
         self.assertEqual(self.attr1.format(), 'kMDItemUserTags')
@@ -81,9 +82,9 @@ class MDTests(unittest.TestCase):
         self.assertEqual(self.attr4.format(), 'kMDItemContentType')
 
     def test_mdcomparisons(self):
-        self.assertIsInstance(self.comp1, attributes.MDComparison)
-        self.assertIsInstance(self.comp2, attributes.MDComparison)
-        self.assertIsInstance(self.comp3, attributes.MDComparison)
+        self.assertIsInstance(self.comp1, MDComparison)
+        self.assertIsInstance(self.comp2, MDComparison)
+        self.assertIsInstance(self.comp3, MDComparison)
 
     def test_comparison_formatting(self):
         # test basic formatting
@@ -99,10 +100,10 @@ class MDTests(unittest.TestCase):
         self.assertEqual(comp1_2.format(), 'kMDItemFSName == "*Blank*"')
 
     def test_expressions(self):
-        self.assertIsInstance(self.exp1, attributes.MDExpression)
-        self.assertIsInstance(self.exp2, attributes.MDExpression)
-        self.assertIsInstance(self.exp3, attributes.MDExpression)
-        self.assertIsInstance(self.exp4, attributes.MDExpression)
+        self.assertIsInstance(self.exp1, MDExpression)
+        self.assertIsInstance(self.exp2, MDExpression)
+        self.assertIsInstance(self.exp3, MDExpression)
+        self.assertIsInstance(self.exp4, MDExpression)
 
     def test_expression_formatting(self):
         exp1 = ('kMDItemAuthors == "*stark*"cd'
