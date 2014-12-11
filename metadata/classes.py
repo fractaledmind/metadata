@@ -351,46 +351,91 @@ class MDComparison(object):
 
 
 class MDExpression(object):
+    """Represents an OS X Spotlight file metadata query expression.
+
+    You probably shouldn't use this class directly, but by comparing a
+    :class:`MDAttribute` to a predicate.
+
+    :param operator: the type of junction
+    :type operator: ``unicode``
+    :param units: components of the query expression
+    :type units: ``list`` of :class:`MDComparison` or
+        :class:`MDExpression` objects
+
+    """
+
     def __init__(self, operator, *units):
         self.operator = operator
-        self.units = self.pre_format(units)
+        self.units = units
 
     def __str__(self):
-        """Return :class:`str` representation of the :class:`MDComparison`
+        """Return :class:`str` representation of the :class:`MDExpression`
         object. The :class:`str` representation is a UTF8 encoded string.
 
         """
         return str(self.__unicode__().encode('utf-8'))
 
     def __unicode__(self):
-        return self.operator.join(self.units)
+        """Return :class:`unicode` representation of the :class:`MDExpression`
+        object.
+
+        """
+        return self.operator.join(self._format(self.units))
 
     # Expression Operators  ---------------------------------------------------
 
     def __and__(self, other):
-        """Implements bitwise and using the & operator."""
+        """Implements bitwise `and` using the & operator.
+
+        :param other: second half of query expression.
+        :type other: :class:`MDComparison` or :class:`MDExpression`
+        :returns: :class:`MDExpression` object
+
+        """
         if isinstance(other, MDComparison):
             return MDExpression(' && ', self, other)
         elif isinstance(other, MDExpression):
             return MDExpression(' && ', self, other)
+        else:
+            msg = ('Invalid query expression! {} must be `MDComparison`'
+                   'or `MDExpression` object.'.format(repr(other)))
+            raise Exception(msg)
 
     def __or__(self, other):
-        """Implements bitwise or using the | operator."""
+        """Implements bitwise `or` using the | operator.
+
+        :param other: second half of query expression.
+        :type other: :class:`MDComparison` or :class:`MDExpression`
+        :returns: :class:`MDExpression` object
+
+        """
         if isinstance(other, MDComparison):
             return MDExpression(' || ', self, other)
         elif isinstance(other, MDExpression):
-            return MDExpression(' && ', self, other)
+            return MDExpression(' || ', self, other)
+        else:
+            msg = ('Invalid query expression! {} must be `MDComparison`'
+                   'or `MDExpression` object.'.format(repr(other)))
+            raise Exception(msg)
 
     # Helper method  ----------------------------------------------------------
 
     @staticmethod
-    def pre_format(units):
+    def _format(units):
+        """Format query ``units`` as unicode strings.
+
+        :param units: components of the query expression
+        :type units: ``list`` of :class:`MDComparison` or
+            :class:`MDExpression` objects
+        :returns: ``list``
+
+        """
         clean_units = []
         for comparison in units:
             # nested expressions are wrapped in parens
             if isinstance(comparison, MDExpression):
-                clean = '(' + str(comparison) + ')'
+                clean = '(' + unicode(comparison) + ')'
                 clean_units.append(clean)
             elif isinstance(comparison, MDComparison):
-                clean_units.append(str(comparison))
+                clean_units.append(unicode(comparison))
         return clean_units
