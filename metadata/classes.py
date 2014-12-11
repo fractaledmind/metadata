@@ -201,44 +201,97 @@ class MDComparison(object):
         if self.operator == 'InRange':
             return self._format_inrange()
         else:
-            # check if attribute is date attribute
-            if 'date' in self.attribute.key:
-                query_val = self._parse_date_value(self.predicate)
-            elif isinstance(self.predicate, int):
-                query_val = unicode(self.predicate)
-            elif isinstance(self.predicate, float):
-                query_val = unicode(self.predicate)
-            else:
-                quoted_val = self._quote_value(self.predicate)
-                query_val = self._modify_comparison(quoted_val)
-            query = [self.attribute.id, self.operator, query_val]
+            predicate = self._prepare_predicate(self.predicate)
+            query = [self.attribute.id, self.operator, predicate]
             return ' '.join(query)
 
-    # Expression Operators  ---------------------------------------------------
+    # Expression Magic Operators  ---------------------------------------------
 
     def __and__(self, other):
-        """Implements bitwise and using the & operator."""
+        """Implements bitwise `and` using the & operator.
+
+        :param other: second half of query expression.
+        :type other: :class:`MDComparison` or :class:`MDExpression`
+        :returns: :class:`MDExpression` object
+
+        """
         if isinstance(other, MDComparison):
             return MDExpression(' && ', self, other)
         elif isinstance(other, MDExpression):
             return MDExpression(' && ', self, other)
+        else:
+            msg = ('Invalid query expression! {} must be `MDComparison`'
+                   'or `MDExpression` object.'.format(repr(other)))
+            raise Exception(msg)
 
     def __or__(self, other):
-        """Implements bitwise or using the | operator."""
+        """Implements bitwise `or` using the | operator.
+
+        :param other: second half of query expression.
+        :type other: :class:`MDComparison` or :class:`MDExpression`
+        :returns: :class:`MDExpression` object
+
+        """
         if isinstance(other, MDComparison):
             return MDExpression(' || ', self, other)
         elif isinstance(other, MDExpression):
             return MDExpression(' && ', self, other)
+        else:
+            msg = ('Invalid query expression! {} must be `MDComparison`'
+                   'or `MDExpression` object.'.format(repr(other)))
+            raise Exception(msg)
 
     # Helper methods  ---------------------------------------------------------
 
-    @staticmethod
-    def _quote_value(value):
-        clean_value = value.replace('"', '\\"')\
-                           .replace("'", "\\'")
-        return '"' + clean_value + '"'
+    def _prepare_predicate(self, predicate):
+        """Properly handle data, number, and string predicates
+        for query comparisons.
 
-    def _modify_comparison(self, value):
+        :param predicate: value of the comparison predicate.
+        :type predicate: ``unicode``, ``int``, or ``float``
+        :returns: ``unicode``
+
+        """
+        # if predicate is date attribute
+        if 'date' in self.attribute.key:
+            predicate = self._parse_date_value(predicate)
+        # if predicate is number
+        elif isinstance(predicate, int):
+            predicate = unicode(predicate)
+        # if predicate is float number
+        elif isinstance(predicate, float):
+            predicate = unicode(predicate)
+        # else is string
+        else:
+            quoted_pred = self._quote_predicate(predicate)
+            predicate = self._modify_comparison(quoted_pred)
+        return predicate
+
+    @staticmethod
+    def _quote_predicate(predicate):
+        """Ensure string ``predicate`` is properly quoted.
+
+        :param predicate: string predicate of query comparison.
+        :type predicate: ``unicode``
+        :returns: properly quoted string
+        :rtype: ``unicode``
+
+        """
+        clean_pred = predicate.replace('"', '\\"')\
+                              .replace("'", "\\'")
+        return '"' + clean_pred + '"'
+
+    def _modify_comparison(self, predicate):
+        """Ignore case and diacritics in query comparison,
+        if :attr:`MDAttribute.ignore_case` or
+        :attr:`MDAttribute.ignore_diacritics` is ``True``.
+
+        :param predicate: string predicate of query comparison.
+        :type predicate: ``unicode``
+        :returns: properly formatted query comparison
+        :rtype: ``unicode``
+
+        """
         mod = []
         if self.attribute.ignore_case:
             mod.append('c')
@@ -246,11 +299,17 @@ class MDComparison(object):
             mod.append('d')
         # return properly formatted comparison expression
         if mod:
-            return value + ''.join(mod)
+            return predicate + ''.join(mod)
         else:
-            return value
+            return predicate
 
     def _format_inrange(self):
+        """Format :attr:`MDAttribute.in_range` string.
+
+        :returns: properly formatted query string
+        :rtype: ``unicode``
+
+        """
         if 'date' in self.attribute.key:
             min_v = self._parse_date_value(self.predicate[0])
             max_v = self._parse_date_value(self.predicate[1])
@@ -260,9 +319,18 @@ class MDComparison(object):
                                                min_v,
                                                max_v)
 
-    def _parse_date_value(self, value):
+    def _parse_date_value(self, predicate):
+        """Parse human-readable date-related strings into an ISO formatted
+        :mod:`datetime` object.
+
+        :param predicate: string predicate of query comparison.
+        :type predicate: ``unicode``
+        :returns: properly formatted query comparison
+        :rtype: ``unicode``
+
+        """
         cal = parsedatetime.Calendar()
-        struct_time = cal.parse(value)
+        struct_time = cal.parse(predicate)
         timestamp = time.mktime(struct_time[0])
         iso_date = datetime.fromtimestamp(timestamp).isoformat()
         return '$time.iso({})'.format(iso_date)
