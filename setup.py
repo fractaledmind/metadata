@@ -31,9 +31,6 @@ setup(
     author_email='stephen.margheim@gmail.com',
     url='http://www.hackademic.postach.io',
     packages=['metadata'],
-    scripts=['metadata/functions.py',
-             'metadata/`attributes.py',
-             'metadata/utils.py'],
     install_requires=requires,
     license='MIT'
 )
