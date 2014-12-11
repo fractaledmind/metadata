@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from __future__ import unicode_literals
+
 __title__ = 'metadata'
 __version__ = '0.2.0'
 __author__ = 'Stephen Margheim'
