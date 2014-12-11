@@ -182,15 +182,6 @@ def get_all_attributes():
                                 [item.replace("'", "")
                                  for item in attribute.split('\t\t')]))
             for attribute in attributes.splitlines()]
-    """
-    final = [_info
-             for _info in data
-             for _group, ids in ATTR_GROUPS.items()
-             if _info['id'] in ids
-             if not _info.update({'group': _group})]
-    print(len(data))
-    print(len(final))
-    """
     return data
 
 
