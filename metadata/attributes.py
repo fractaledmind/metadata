@@ -192,7 +192,7 @@ class MDAttribute(object):
         self._ignore_diacritics = ignore_diacritics
         for k, v in info.items():
             setattr(self, k, v)
-        self.key = utils.clean_key(self.id)
+        self.key = utils.clean_attribute(self.id)
 
     def format(self):
         return self.id
@@ -383,7 +383,7 @@ __attributes = get_all_attributes()
 # prepare attribute group lists
 #file_system, image, audio, video, common = ([], [], [], [], [])
 for __info in __attributes:
-    __name = utils.clean_key(__info['id'])
+    __name = utils.clean_attribute(__info['id'])
     """
     for _group, ids in ATTR_GROUPS.items():
         # ensure item matches to group

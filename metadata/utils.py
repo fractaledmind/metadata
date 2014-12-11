@@ -70,7 +70,14 @@ def convert_camel(camel_case):
     return under.replace('__', '_')
 
 
-def clean_key(key):
+def clean_attribute(key):
+    """Convert CamelCase to underscore_format
+
+    :param key: name of OS X metadata attribute
+    :type key: ``unicode`` or ``str``
+    :returns: Pythonic attribute name
+
+    """
     uid = key.replace('kMDItemFS', '')\
              .replace('kMDItem', '')\
              .replace('kMD', '')\

@@ -20,7 +20,7 @@ def list(file_path):
             k, v = item
             # if second item is parens, then first is key
             if v == '(':
-                listed_key = utils.clean_key(k)
+                listed_key = utils.clean_attribute(k)
             # else, it's a simple `key: value` pair
             else:
                 # attempt to convert to `int`
@@ -31,7 +31,7 @@ def list(file_path):
                 # convert shell nulls to Python `None`
                 if val in ('""', '(null)'):
                     val = None
-                key = utils.clean_key(k)
+                key = utils.clean_attribute(k)
                 md_dict[key] = val
         # single item is part of a nested attribute
         elif len(item) == 1 and item[0] != ')':
