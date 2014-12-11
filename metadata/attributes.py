@@ -265,7 +265,6 @@ class MDComparison(object):
         self.attribute = attribute
         self.operator = operator
         self.predicate = predicate
-        self.cal = parsedatetime.Calendar()
 
     def format(self):
         # check for `InRange` operator
@@ -328,7 +327,8 @@ class MDComparison(object):
                                                max_v)
 
     def _parse_date_value(self, value):
-        struct_time = self.cal.parse(value)
+        cal = parsedatetime.Calendar()
+        struct_time = cal.parse(value)
         timestamp = time.mktime(struct_time[0])
         iso_date = datetime.fromtimestamp(timestamp).isoformat()
         return '$time.iso({})'.format(iso_date)
