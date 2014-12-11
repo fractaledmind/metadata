@@ -378,33 +378,34 @@ class MDExpression(object):
 
 
 # dynamically generate module attribute objects
-_module = sys.modules[__name__]
-all_attributes = get_all_attributes()
+__module = sys.modules[__name__]
+__attributes = get_all_attributes()
 # prepare attribute group lists
 #file_system, image, audio, video, common = ([], [], [], [], [])
-for _info in all_attributes:
-    _name = text.clean_key(_info['id'])
+for __info in __attributes:
+    __name = text.clean_key(__info['id'])
     """
     for _group, ids in ATTR_GROUPS.items():
         # ensure item matches to group
-        if _info['id'] in ids:
-            # add group name to `_info` dict
-            _info.update({'group': _group})
-            _info.update({'key': _name})
-            # add `_info` dict to proper sub-group
+        if __info['id'] in ids:
+            # add group name to `__info` dict
+            __info.update({'group': _group})
+            __info.update({'key': __name})
+            # add `__info` dict to proper sub-group
             if 'Image' in _group:
-                image.append(_info)
+                image.append(__info)
             elif 'Audio' in _group:
-                audio.append(_info)
+                audio.append(__info)
             elif 'Video' in _group:
-                video.append(_info)
+                video.append(__info)
             elif 'Common' in _group:
-                common.append(_info)
+                common.append(__info)
             elif 'File System' in _group:
-                file_system.append(_info)
-        print(_info)
+                file_system.append(__info)
+        print(__info)
     """
-    setattr(_module, _name, MDAttribute(_info))
+    setattr(__module, __name, MDAttribute(__info))
+
 
 
 if __name__ == '__main__':
