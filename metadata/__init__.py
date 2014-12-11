@@ -7,4 +7,5 @@ __license__ = 'MIT'
 __copyright__ = 'Copyright © 2014 Stephen Margheim'
 
 from functions import find, list, write
+from classes import MDAttribute, MDComparison, MDExpression
 import attributes
