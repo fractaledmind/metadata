@@ -51,7 +51,7 @@ def find(query_expression, only_in=None):
         cmd.append('-onlyin')
         cmd.append(only_in)
     # convert `query_expression` into file metadata query expression syntax
-    query = "'" + query_expression.format() + "'"
+    query = "'" + unicode(query_expression) + "'"
     cmd.append(query)
     # run `mdfind` command as shell string, since otherwise it breaks
     #print(' '.join(cmd))

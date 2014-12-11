@@ -41,8 +41,8 @@ class MDTests(unittest.TestCase):
                     'id': 'kMDItemUserTags',
                     'description': 'Tags associated with this item'}
         self.attr1 = MDAttribute(tag_info,
-                                            ignore_case=False,
-                                            ignore_diacritics=False)
+                                 ignore_case=False,
+                                 ignore_diacritics=False)
         self.attr2 = attributes.name
         self.attr3 = attributes.authors
         self.attr4 = attributes.content_type
@@ -76,10 +76,10 @@ class MDTests(unittest.TestCase):
         self.assertIsInstance(self.attr4, MDAttribute)
 
     def test_mdattribute_formatting(self):
-        self.assertEqual(self.attr1.format(), 'kMDItemUserTags')
-        self.assertEqual(self.attr2.format(), 'kMDItemFSName')
-        self.assertEqual(self.attr3.format(), 'kMDItemAuthors')
-        self.assertEqual(self.attr4.format(), 'kMDItemContentType')
+        self.assertEqual(unicode(self.attr1), 'kMDItemUserTags')
+        self.assertEqual(unicode(self.attr2), 'kMDItemFSName')
+        self.assertEqual(unicode(self.attr3), 'kMDItemAuthors')
+        self.assertEqual(unicode(self.attr4), 'kMDItemContentType')
 
     def test_mdcomparisons(self):
         self.assertIsInstance(self.comp1, MDComparison)
@@ -88,16 +88,16 @@ class MDTests(unittest.TestCase):
 
     def test_comparison_formatting(self):
         # test basic formatting
-        self.assertEqual(self.comp1.format(), 'kMDItemFSName == "*Blank*"cd')
+        self.assertEqual(unicode(self.comp1), 'kMDItemFSName == "*Blank*"cd')
         # alter `MDComparison` object
         attributes.name.ignore_case = False
         comp1_1 = (attributes.name == '*Blank*')
-        self.assertEqual(comp1_1.format(), 'kMDItemFSName == "*Blank*"d')
+        self.assertEqual(unicode(comp1_1), 'kMDItemFSName == "*Blank*"d')
         # double alter `MDComparison` object
         attributes.name.ignore_case = False
         attributes.name.ignore_diacritics = False
         comp1_2 = (attributes.name == '*Blank*')
-        self.assertEqual(comp1_2.format(), 'kMDItemFSName == "*Blank*"')
+        self.assertEqual(unicode(comp1_2), 'kMDItemFSName == "*Blank*"')
 
     def test_expressions(self):
         self.assertIsInstance(self.exp1, MDExpression)
@@ -108,19 +108,19 @@ class MDTests(unittest.TestCase):
     def test_expression_formatting(self):
         exp1 = ('kMDItemAuthors == "*stark*"cd'
                 ' && kMDItemFSName == "*Blank*"cd')
-        self.assertEqual(self.exp1.format(), exp1)
+        self.assertEqual(unicode(self.exp1), exp1)
         exp2 = ('kMDItemFSName == "*Blank*"cd'
                 ' || kMDItemAuthors == "*stark*"cd')
-        self.assertEqual(self.exp2.format(), exp2)
+        self.assertEqual(unicode(self.exp2), exp2)
         exp3 = ('kMDItemAuthors == "*stark*"cd'
                 ' && (kMDItemFSName == "*Blank*"cd'
                 ' || kMDItemContentType == "com.adobe.pdf"cd)')
-        self.assertEqual(self.exp3.format(), exp3)
+        self.assertEqual(unicode(self.exp3), exp3)
         exp4 = ('(kMDItemFSName == "*Blank*"cd'
                 ' || kMDItemAuthors == "*stark*"cd)'
                 ' && (kMDItemContentType == "com.adobe.pdf"cd'
                 ' || kMDItemCreator == "python"cd)')
-        self.assertEqual(self.exp4.format(), exp4)
+        self.assertEqual(unicode(self.exp4), exp4)
 
     def test_find_blank(self):
         exp = self.comp1 & self.comp3
