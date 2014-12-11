@@ -18,8 +18,21 @@ class MDAttribute(object):
             setattr(self, k, v)
         self.key = utils.clean_attribute(self.id)
 
-    def format(self):
-        return self.id
+    # Representation Magic Methods  -------------------------------------------
+
+    def __str__(self):
+        """Return :class:`str` representation of the :class:`MDComparison`
+        object. The :class:`str` representation is a UTF8 encoded string.
+
+        """
+        return str(self.__unicode__().encode('utf-8'))
+
+    def __unicode__(self):
+        """Return :class:`unicode` representation of the :class:`MDComparison`
+        object.
+
+        """
+        return utils.decode(self.id)
 
     # Modifier Properties  ----------------------------------------------------
 
@@ -88,9 +101,22 @@ class MDComparison(object):
     def __init__(self, attribute, operator, predicate):
         self.attribute = attribute
         self.operator = operator
-        self.predicate = predicate
+        self.predicate = utils.decode(predicate)
 
-    def format(self):
+    # Representation Magic Methods  -------------------------------------------
+
+    def __str__(self):
+        """Return :class:`str` representation of the :class:`MDComparison`
+        object. The :class:`str` representation is a UTF8 encoded string.
+
+        """
+        return str(self.__unicode__().encode('utf-8'))
+
+    def __unicode__(self):
+        """Return :class:`unicode` representation of the :class:`MDComparison`
+        object.
+
+        """
         # check for `InRange` operator
         if self.operator == 'InRange':
             return self._format_inrange()
@@ -167,7 +193,14 @@ class MDExpression(object):
         self.operator = operator
         self.units = self.pre_format(units)
 
-    def format(self):
+    def __str__(self):
+        """Return :class:`str` representation of the :class:`MDComparison`
+        object. The :class:`str` representation is a UTF8 encoded string.
+
+        """
+        return str(self.__unicode__().encode('utf-8'))
+
+    def __unicode__(self):
         return self.operator.join(self.units)
 
     # Expression Operators  ---------------------------------------------------
@@ -194,8 +227,8 @@ class MDExpression(object):
         for comparison in units:
             # nested expressions are wrapped in parens
             if isinstance(comparison, MDExpression):
-                clean = '(' + comparison.format() + ')'
+                clean = '(' + str(comparison) + ')'
                 clean_units.append(clean)
             elif isinstance(comparison, MDComparison):
-                clean_units.append(comparison.format())
+                clean_units.append(str(comparison))
         return clean_units
