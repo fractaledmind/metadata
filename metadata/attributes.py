@@ -274,6 +274,10 @@ class MDComparison(object):
             # check if attribute is date attribute
             if 'date' in self.attribute.key:
                 query_val = self._parse_date_value(self.predicate)
+            elif isinstance(self.predicate, int):
+                query_val = unicode(self.predicate)
+            elif isinstance(self.predicate, float):
+                query_val = unicode(self.predicate)
             else:
                 quoted_val = self._quote_value(self.predicate)
                 query_val = self._modify_comparison(quoted_val)
