@@ -15,7 +15,7 @@ I'm working on getting the library on [PyPi](https://pypi.python.org/pypi) soon.
 
 ### `find`
 
-Okay, so once you generate your `MDExpression` object, this is what you will pass to `metadata.find()`. In addition to this one required argument, `metadata.find()` also has the optional argument `only_in` for you to focus the scope of your search to a particular directory tree. Other than that, there's nothing else to it. Build you query expression, pass it to `find()` and get your results as a Python list or string (depending on if there is more than one result). Here's an example of building an expression and passing it to `find()`:
+The main function is `metadata.find()`. It takes one required argument, `query_expression`, which can be either an `MDExpression` object or an `MDComparison` object. In addition to this one required argument, `metadata.find()` also has the optional argument `only_in` for you to focus the scope of your search to a particular directory tree. This simply needs to be a full (non-relative) path passed as a Unicode string. Other than that, there's nothing else to it. Build you query expression, pass it to `find()` and get your results as a Python list. Here's an example of building an expression and passing it to `find()`:
 ```
 import metadata
 
