@@ -17,8 +17,7 @@ if __name__ == '__main__':
     # add path to module root to `$PATH`
     root = os.path.dirname(os.path.dirname(__file__))
     sys.path.insert(0, root)
-
-from metadata import attributes
+import metadata
 from metadata import functions as md
 from metadata import MDAttribute, MDComparison, MDExpression
 
@@ -34,23 +33,22 @@ def tearDown():
 class MDTests(unittest.TestCase):
 
     def setUp(self):
-        self.all_attributes = attributes.get_all_attributes()
         # `MDAttribute` objects
-        tag_info = {'aliases': 'tag',
-                    'name': 'Tags',
-                    'id': 'kMDItemUserTags',
-                    'description': 'Tags associated with this item'}
+        tag_info = {'aliases': '(null)',
+                    'name': 'Example Attribute',
+                    'id': 'kMDItemExampleAttribute',
+                    'description': 'This is a test attribute'}
         self.attr1 = MDAttribute(tag_info,
                                  ignore_case=False,
                                  ignore_diacritics=False)
-        self.attr2 = attributes.name
-        self.attr3 = attributes.authors
-        self.attr4 = attributes.content_type
+        self.attr2 = metadata.name
+        self.attr3 = metadata.authors
+        self.attr4 = metadata.content_type
         # `MDComparison` objects
-        self.comp1 = (attributes.name == '*Blank*')
-        self.comp2 = (attributes.authors == '*stark*')
-        self.comp3 = (attributes.content_type == 'com.adobe.pdf')
-        self.comp4 = (attributes.creator == 'python')
+        self.comp1 = (metadata.name == '*Blank*')
+        self.comp2 = (metadata.authors == '*stark*')
+        self.comp3 = (metadata.content_type == 'com.adobe.pdf')
+        self.comp4 = (metadata.creator == 'python')
         # `MDExpression` objects
         self.exp1 = self.comp2 & self.comp1
         self.exp2 = self.comp1 | self.comp2
@@ -63,8 +61,8 @@ class MDTests(unittest.TestCase):
         self.visual_pdf = os.path.abspath('./lorem_visual.pdf')
 
     def tearDown(self):
-        attributes.name.ignore_case = True
-        attributes.name.ignore_diacritics = True
+        metadata.name.ignore_case = True
+        metadata.name.ignore_diacritics = True
 
     #  ------------------------------------------------------------------------
 
@@ -76,7 +74,7 @@ class MDTests(unittest.TestCase):
         self.assertIsInstance(self.attr4, MDAttribute)
 
     def test_mdattribute_formatting(self):
-        self.assertEqual(unicode(self.attr1), 'kMDItemUserTags')
+        self.assertEqual(unicode(self.attr1), 'kMDItemExampleAttribute')
         self.assertEqual(unicode(self.attr2), 'kMDItemFSName')
         self.assertEqual(unicode(self.attr3), 'kMDItemAuthors')
         self.assertEqual(unicode(self.attr4), 'kMDItemContentType')
@@ -90,13 +88,13 @@ class MDTests(unittest.TestCase):
         # test basic formatting
         self.assertEqual(unicode(self.comp1), 'kMDItemFSName == "*Blank*"cd')
         # alter `MDComparison` object
-        attributes.name.ignore_case = False
-        comp1_1 = (attributes.name == '*Blank*')
+        metadata.name.ignore_case = False
+        comp1_1 = (metadata.name == '*Blank*')
         self.assertEqual(unicode(comp1_1), 'kMDItemFSName == "*Blank*"d')
         # double alter `MDComparison` object
-        attributes.name.ignore_case = False
-        attributes.name.ignore_diacritics = False
-        comp1_2 = (attributes.name == '*Blank*')
+        metadata.name.ignore_case = False
+        metadata.name.ignore_diacritics = False
+        comp1_2 = (metadata.name == '*Blank*')
         self.assertEqual(unicode(comp1_2), 'kMDItemFSName == "*Blank*"')
 
     def test_expressions(self):
@@ -137,7 +135,7 @@ class MDTests(unittest.TestCase):
 
     def test_find_all(self):
         # test time comparisons
-        comp = (attributes.creation_date >= '3 days ago')
+        comp = (metadata.creation_date >= '3 days ago')
         exp = comp & self.comp3
         paths = md.find(exp, only_in=self.pdf_dir)
         all_pdfs = [self.blank_pdf, self.visual_pdf, self.essay_pdf]
