@@ -28,7 +28,7 @@ The following sub-sections will describe these 3 elements more fully, but any su
 
 The first element of a query comparison is the *attribute*, which is a `MDAttribute` object in `metadata`. `metadata` automatically generates `MDAttribute` objects for every Spotlight attribute on your system. You can view the names of all of these objects via `metadata.attributes` variable. Attributes have a Pythonic naming scheme, so `kMDItemFSName` becomes `metadata.name` and `kMDItemContentType` becomes `metadata.content_type`. The `MDAttribute` class is built on top of the metadata information retrieved from `mdimport -A`. If you wish to see all of the information for a metadata attributes, you can use the `metadata.[attribute].info()` function.
 
-As with all of the custom classes, you can coerce a `MDAttribute` object into a unicode string using the `unicode()` operation (i.e. `unicode(metadata.attributes.name)` returns `u'kMDItemFSName'`).
+As with all of the custom classes, you can coerce a `MDAttribute` object into a unicode string using the `unicode()` operation (i.e. `unicode(metadata.name)` returns `u'kMDItemFSName'`).
 
 #### Operator
 
@@ -48,15 +48,15 @@ The `==` and `!=` operators allow for modification. These modifiers specify how 
 
 |                     Modifier                     |                     Description                     |
 |--------------------------------------------------|-----------------------------------------------------|
-| `metadata.attributes.[object].ignore_case`       | The comparison is case insensitive.                 |
-| `metadata.attributes.[object].ignore_diacritics` | The comparison is insensitive to diacritical marks. |
+| `metadata.[object].ignore_case`       | The comparison is case insensitive.                 |
+| `metadata.[object].ignore_diacritics` | The comparison is insensitive to diacritical marks. |
 
 Both modifiers are on by default. In order to turn one off, you need to set the property to `False`:
 ```
 import metadata
 
-metadata.attributes.content_type.ignore_case = False
-comparison = metadata.attributes.content_type == 'com.adobe.pdf'
+metadata.content_type.ignore_case = False
+comparison = metadata.content_type == 'com.adobe.pdf'
 ```
 
 #### Value
@@ -64,25 +64,25 @@ comparison = metadata.attributes.content_type == 'com.adobe.pdf'
 The *value* element of a query comparison can be a string or integer. Strings can use wildcard characters (`*` and `?`) to make the search fuzzy. The `*` character matches multiple characters whereas the `?` wildcard character matches a single character (*Note*: Even in the Terminal, I cannot get wildcard searches with `?` to function properly. I would recommend using `*` as your ony wildcard character). Here are some examples demonstrating how the wildcards function:
 ```
 # Matches attribute values that begin with “paris”. For example, matches “paris”, but not “comparison”.
-metadata.attributes.text_content == "paris*"
+metadata.text_content == "paris*"
 
 # Matches attribute values that end with “paris”.
-metadata.attributes.text_content == "*paris"
+metadata.text_content == "*paris"
 
 # Matches attributes that contain "paris" anywhere within the value. For example, matches “paris” and “comparison”.
-metadata.attributes.text_content == "*paris*"
+metadata.text_content == "*paris*"
 
 # Matches attribute values that are exactly equal to “paris”.
-metadata.attributes.text_content == "paris"
+metadata.text_content == "paris"
 ```
 
-In order to use any of the greater-than or less-than operators, your value needs either to be an integer (or float) or a date object. In order to make the API as intuitive as possible, `metadata` allows for human-readable date statements. That is, you do not need to pass `datetime` objects as the *value* of a comparison with a date attribute (like `metadata.attributes.creation_date`). `metadata` uses the `parsedatetime` library to convert human-readable dates into `datetime` objects. The following are all acceptable date comparisons:
+In order to use any of the greater-than or less-than operators, your value needs either to be an integer (or float) or a date object. In order to make the API as intuitive as possible, `metadata` allows for human-readable date statements. That is, you do not need to pass `datetime` objects as the *value* of a comparison with a date attribute (like `metadata.creation_date`). `metadata` uses the `parsedatetime` library to convert human-readable dates into `datetime` objects. The following are all acceptable date comparisons:
 ```
 # Created before today
-metadata.attributes.creation_date < 'today'
+metadata.creation_date < 'today'
 
 # Created after last month
-metadata.attributes.creation_date > 'one month ago'
+metadata.creation_date > 'one month ago'
 ```
 If `metadata` cannot parse your datetime string, it will raise an `Exception`. The parsing engine is good, but not perfect and can seem capricious. For example, `one month ago` is parsable, but `a month ago` is not. Datetime strings that are parsed are converted into an ISO-8601-STR compliant string.
 
@@ -92,25 +92,25 @@ If `metadata` cannot parse your datetime string, it will raise an `Exception`. T
 You can combine `MDComparison` objects to create a more complex expression, represented by the `MDExpression` class. Comparison objects can be combined in one of two ways: using a conjuction (`&`) or using a disjuction (`|`). Not only can `MDComparison` objects be combined, but you can nest and combine any combination of `MDComparison` objects and `MDExpression` objects. For example:
 ```
 # query for audio files authored by “stephen” (ignoring case)
-metadata.attributes.authors == "stephen" & metadata.attributes.content_type == "public.audio"
+metadata.authors == "stephen" & metadata.content_type == "public.audio"
 
 # query for audio files authored by “stephen” or “daniel”
-(metadata.attributes.authors == "daniel" | metadata.attributes.authors == "stephen") & metadata.attributes.content_type == "public.audio"
+(metadata.authors == "daniel" | metadata.authors == "stephen") & metadata.content_type == "public.audio"
 
 # query for audio or video files authored by “stephen” or “daniel”
-(metadata.attributes.authors == "daniel" | metadata.attributes.authors == "stephen") & (metadata.attributes.content_type == "public.audio" | metadata.attributes.content_type == "public.video")
+(metadata.authors == "daniel" | metadata.authors == "stephen") & (metadata.content_type == "public.audio" | metadata.content_type == "public.video")
 
 # you could also break the last expression into chunks
-author_exp = (metadata.attributes.authors == "daniel") | (metadata.attributes.authors == "stephen")
-type_exp = (metadata.attributes.content_type == "public.audio") | (metadata.attributes.content_type == "public.video")
+author_exp = (metadata.authors == "daniel") | (metadata.authors == "stephen")
+type_exp = (metadata.content_type == "public.audio") | (metadata.content_type == "public.video")
 final_exp = author_exp & type_exp
 ```
 
 Here's a complex expression to find only audio or video files that have been changed in the last week authored by someone named either "Stephen" or "Daniel" (ignoring case and diacritics, so it would match a file authored by "danièl"):
 ```
-author_exp = (metadata.attributes.authors == "daniel") | (metadata.attributes.authors == "stephen")
-type_exp = (metadata.attributes.content_type == "public.audio") | (metadata.attributes.content_type == "public.video")
-time_comp = metadata.attributes.content_change_date == 'one week ago'
+author_exp = (metadata.authors == "daniel") | (metadata.authors == "stephen")
+type_exp = (metadata.content_type == "public.audio") | (metadata.content_type == "public.video")
+time_comp = metadata.content_change_date == 'one week ago'
 query_expression = author_exp & type_exp & time_comp
 ```
 *Note*: parentheses are needed for the first two expressions. Without them, you would get a `TypeError` as Python thinks you are trying to combine the string `"daniel"` with the `MDAttribute` object `authors`, which is an obviously unsupported expression.
@@ -125,9 +125,9 @@ The main function is `metadata.find()`. It takes one required argument, `query_e
 ```
 import metadata
 
-author_exp = (metadata.attributes.authors == "daniel") | (metadata.attributes.authors == "stephen")
-type_exp = (metadata.attributes.content_type == "public.audio") | (metadata.attributes.content_type == "public.video")
-time_comp = metadata.attributes.content_change_date == 'one week ago'
+author_exp = (metadata.authors == "daniel") | (metadata.authors == "stephen")
+type_exp = (metadata.content_type == "public.audio") | (metadata.content_type == "public.video")
+time_comp = metadata.content_change_date == 'one week ago'
 query_expression = author_exp & type_exp & time_comp
 results = metadata.find(query_expression)
 ``` 
