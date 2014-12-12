@@ -11,38 +11,38 @@ I'm working on getting the library on [PyPi](https://pypi.python.org/pypi) soon.
 
 ## File Metadata Query Expression Syntax
 
-*(adapted from <https://developer.apple.com/library/mac/documentation/Carbon/Conceptual/SpotlightQuery/Concepts/QueryFormat.html>)*
-
-File metadata queries are constructed using a simple query language that takes advantage of Python's flexible class construction. The syntax is relatively straightforward, including comparisons, language agnostic options, and time and date variables.
+I have modeled the Python syntax on [Apple's original Spotlight query syntax](https://developer.apple.com/library/mac/documentation/Carbon/Conceptual/SpotlightQuery/Concepts/QueryFormat.html). File metadata queries are constructed using a simple query language that takes advantage of Python's flexible class construction. The syntax is relatively straightforward, including comparisons, language agnostic options, and time and date variables.
 
 ### Comparison Syntax
 
-`metadata` implements 3 classes (`MDAttribute`, `MDComparison`, and `MDExpression`) to represent the various units of `mdfind`'s [Query Expression Syntax](https://developer.apple.com/library/mac/documentation/Carbon/Conceptual/SpotlightQuery/Concepts/QueryFormat.html). 
+The `metadata` library implements 3 custom classes (`MDAttribute`, `MDComparison`, and `MDExpression`) to represent the various units of `mdfind`'s [Query Expression Syntax](https://developer.apple.com/library/mac/documentation/Carbon/Conceptual/SpotlightQuery/Concepts/QueryFormat.html). 
 
 Query comparisons have the following basic format:
 ```
 [attribute] [operator] [value]
 ```
 
-The following sub-sections will describe these 3 elements more fully, but any such comparison will generate a `MDComparison` object. If you ever want to see what a particular `MDComparison` object will look like as an query string, you can coerce it into a unicode string using the `unicode()` operation. 
+The following sub-sections will describe these 3 elements more fully, but any such comparison will generate a `MDComparison` object. If you ever want to see what a particular `MDComparison` object will look like as an query string, you can coerce it into a unicode string using the `unicode()` operation (or into a string using the `str()` operation). 
 
 #### Attribute
 
-*attribute* is a `MDAttribute` object. In order to use a `MDAttribute` object, you can access the `metadata.attributes` module. Attributes have a Pythonic naming scheme, so `kMDItemFSName` becomes `metadata.attributes.name` and `kMDItemContentTyep` becomes `metadata.attributes.content_type`. You can view all of the available `MDAttribute` objects by looking at the `metadata.attributes.all` list. 
+The first element of a query comparison is the *attribute*, which is a `MDAttribute` object in `metadata`. In order to use a `MDAttribute` object, you can access the `metadata.attributes` module. Attributes have a Pythonic naming scheme, so `kMDItemFSName` becomes `metadata.attributes.name` and `kMDItemContentType` becomes `metadata.attributes.content_type`. You can view all of the available `MDAttribute` objects by looking at the `metadata.attributes.all` list (you can also import all attributes using the `from metadata.attributes import *`).  The `MDAttribute` class is built on top of the metadata information retrieved from `mdimport -A`. If you wish to see all of the metadata attributes and their information, you can use the `metadata.attributes.get_all_attributes()` function. This function returns a list of dictionaries for each metadata attribute.
+
+As with all of the custom classes, you can coerce a `MDAttribute` object into a unicode string using the `unicode()` operation (i.e. `unicode(metadata.attributes.name)` returns `u'kMDItemFSName'`).
 
 #### Operator
 
 The *operator* can be any one of the following:
 
-|                   Operator                  |                                         Description                                         |
-|:-------------------------------------------:|---------------------------------------------------------------------------------------------|
-| `==`                                        | equal                                                                                       |
-| `!=`                                        | not equal                                                                                   |
-| `<`                                         | less than (available for numeric values and dates only)                                     |
-| `>`                                         | greater than (available for numeric values and dates only)                                  |
-| `<=`                                        | less than or equal (available for numeric values and dates only)                            |
-| `>=`                                        | greater than or equal (available for numeric values and dates only)                         |
-| `in_range(attribute, min_value, max_value)` | numeric values within the range of minValue through maxValue in the specified attributeName |
+| Operator                                      | Description                                                                                   |
+| :-------------------------------------------: | --------------------------------------------------------------------------------------------- |
+| `==`                                          | equal                                                                                         |
+| `!=`                                          | not equal                                                                                     |
+| `<`                                           | less than (available for numeric values and dates only)                                       |
+| `>`                                           | greater than (available for numeric values and dates only)                                    |
+| `<=`                                          | less than or equal (available for numeric values and dates only)                              |
+| `>=`                                          | greater than or equal (available for numeric values and dates only)                           |
+| `in_range(attribute, min_value, max_value)`   | numeric values within the range of min_value through max_value in the specified attribute     |
 
 The `==` and `!=` operators allow for modification. These modifiers specify how the comparison is made.
 
@@ -61,7 +61,7 @@ comparison = metadata.attributes.content_type == 'com.adobe.pdf'
 
 #### Value
 
-*value* is a Unicode string or integer. Strings can use wildcard characters (`*` and `?`) to make the search fuzzy. The `*` character matches multiple characters whereas the `?` wildcard character matches a single character (*Note*: Even in the Terminal, I cannot get wildcard searches with `?` to function properly. I would recommend using `*` as your ony wildcard character). Here are some examples demonstrating how the wildcards function:
+The *value* element of a query comparison can be a string or integer. Strings can use wildcard characters (`*` and `?`) to make the search fuzzy. The `*` character matches multiple characters whereas the `?` wildcard character matches a single character (*Note*: Even in the Terminal, I cannot get wildcard searches with `?` to function properly. I would recommend using `*` as your ony wildcard character). Here are some examples demonstrating how the wildcards function:
 ```
 # Matches attribute values that begin with “paris”. For example, matches “paris”, but not “comparison”.
 metadata.attributes.text_content == "paris*"
