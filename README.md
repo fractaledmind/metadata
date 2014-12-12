@@ -76,7 +76,7 @@ metadata.attributes.text_content == "*paris*"
 metadata.attributes.text_content == "paris"
 ```
 
-In order to use any of the greater-than or less-than operators, your value needs either to be an integer (or float) or a date object. In order to make the API as intuitive as possible, `metadata` allows for human-readable date statements. That is, you do not need to pass `datetime` objects as the *value* of a comparison with a date attribute (like `metadata.attributes.creation_date`). The following are all acceptable date comparisons:
+In order to use any of the greater-than or less-than operators, your value needs either to be an integer (or float) or a date object. In order to make the API as intuitive as possible, `metadata` allows for human-readable date statements. That is, you do not need to pass `datetime` objects as the *value* of a comparison with a date attribute (like `metadata.attributes.creation_date`). `metadata` uses the `parsedatetime` library to convert human-readable dates into `datetime` objects. The following are all acceptable date comparisons:
 ```
 # Created before today
 metadata.attributes.creation_date < 'today'
@@ -101,8 +101,8 @@ metadata.attributes.authors == "stephen" & metadata.attributes.content_type == "
 (metadata.attributes.authors == "daniel" | metadata.attributes.authors == "stephen") & (metadata.attributes.content_type == "public.audio" | metadata.attributes.content_type == "public.video")
 
 # you could also break the last expression into chunks
-author_exp = metadata.attributes.authors == "daniel" | metadata.attributes.authors == "stephen"
-type_exp = metadata.attributes.content_type == "public.audio" | metadata.attributes.content_type == "public.video"
+author_exp = (metadata.attributes.authors == "daniel") | (metadata.attributes.authors == "stephen")
+type_exp = (metadata.attributes.content_type == "public.audio") | (metadata.attributes.content_type == "public.video")
 final_exp = author_exp & type_exp
 ```
 
@@ -121,22 +121,20 @@ Once you have created your query expression (or even a simple comarison), you wi
 
 ### `find`
 
-The main function is `metadata.find()`. It takes one required argument, `query_expression`, which can be either an `MDExpression` object or an `MDComparison` object. In addition to this one required argument, `metadata.find()` also has the optional argument `only_in` for you to focus the scope of your search to a particular directory tree. This simply needs to be a full (non-relative) path passed as a Unicode string. Other than that, there's nothing else to it. Build you query expression, pass it to `find()` and get your results as a Python list. Here's an example of building an expression and passing it to `find()`:
+The main function is `metadata.find()`. It takes one required argument, `query_expression`, which can be either an `MDExpression` object or an `MDComparison` object. In addition to this one required argument, `metadata.find()` also has the optional argument `only_in` for you to focus the scope of your search to a particular directory tree. This simply needs to be a full (non-relative) path passed as a Unicode string. Other than that, there's nothing else to it. Build you query expression, pass it to `find()` and get your results as a Python list. Here's an example of building the sample expression above and passing it to `metadata.find()`:
 ```
 import metadata
 
-comp1 = metadata.attributes.name == '*blank*'
-comp2 = metadata.attributes.user_tags != 'test?'
-comp3 = metadata.attributes.creation_date > 'today'
-
-exp = (comp1 & comp2) | comp3
-metadata.find(exp)
+author_exp = (metadata.attributes.authors == "daniel") | (metadata.attributes.authors == "stephen")
+type_exp = (metadata.attributes.content_type == "public.audio") | (metadata.attributes.content_type == "public.video")
+time_comp = metadata.attributes.content_change_date == 'one week ago'
+query_expression = author_exp & type_exp & time_comp
+results = metadata.find(query_expression)
 ``` 
-Note that date attributes can accept human-readable date statements. `metadata` uses the `parsedatetime` library to convert human-readable dates into `datetime` objects.
 
 ### `list`
 
-In addition to `find()`, the module has `list`, which is a wrapper around the `mdls` command. You simply pass it a file path and it returns a dictionary of metadata attributes and values. Once again, the attribute names (the dictionary keys) are simplified using the `clean_key` function seen above. 
+In addition to `find()`, the `metadata` module has the `list` function, which is a wrapper around the `mdls` command. You simply pass it a file path and it returns a dictionary of metadata attributes and values. Once again, the attribute names (the dictionary keys) are simplified using the algorithm used to convert Spotlight attributes to Pythonic names. 
 ```
 import metadata
 
@@ -145,4 +143,5 @@ print(file_metadata['name'])
 ```
 
 ### `write`
+
 Finally, there is an alpha version of a `write()` function, which allows you to write metadata to a file. Right now, I have it defaulted to writing to the `kMDItemUserTags` attribute, but a few others have worked. I need to test it more to make it more general. 
