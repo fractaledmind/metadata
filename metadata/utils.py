@@ -65,7 +65,7 @@ def decode(text, encoding='utf-8', normalization='NFC'):
         if not isinstance(text, unicode):
             text = unicode(text, encoding)
     # decode Cocoa/CoreFoundation Unicode to Python Unicode
-    if '\\U' in text:
+    if re.search(r'\\U\d{3,}', text):
         text = text.replace('\\U', '\\u').decode('unicode-escape')
     return unicodedata.normalize(normalization, text)
 
