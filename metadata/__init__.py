@@ -34,13 +34,13 @@ def attributes_generator():
         keyed_data = itertools.izip(keys, attribute_data)
         yield dict(keyed_data)
 
-# dynamically generate module attribute objects
+# dynamically create module attribute objects
 __module = sys.modules[__name__]
 for __info in attributes_generator():
     __name = utils.clean_attribute(__info['id'])
     setattr(__module, __name, MDAttribute(__info))
 
-# set ``attributes``, filtering out non metadata
+# set ``attributes`` var, filtering out non metadata
 attributes = [attr
               for attr in __module.__dict__.keys()
               if not attr.startswith('__')
