@@ -32,6 +32,9 @@ class MDAttribute(object):
             setattr(self, k, v)
         self.key = utils.clean_attribute(self.id)
 
+    def info(self):
+        return self.__dict__
+
     # Representation Magic Methods  -------------------------------------------
 
     def __str__(self):
