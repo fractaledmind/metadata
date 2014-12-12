@@ -27,7 +27,7 @@ def attributes_generator():
     attributes = utils.run_process(['mdimport', '-A'])
     # prepare key names for the four columns
     keys = ('id', 'name', 'description', 'aliases')
-    # create list of dicts, mapping ``keys`` to an item's columns
+    # create dicts, mapping ``keys`` to an item's columns
     for attribute in attributes:
         attribute_data = [item.replace("'", "")
                           for item in attribute.split('\t\t')]
