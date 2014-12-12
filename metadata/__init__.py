@@ -45,7 +45,9 @@ attributes = [attr
               for attr in __module.__dict__.keys()
               if not attr.startswith('__')
               if not attr.startswith('MD')
-              if not attr == 'ATTR_GROUPS']
+              if not attr in ('find', 'list', 'write',
+                              'utils', 'sys', 'itertools',
+                              'unicode_literals')]
 
 
 if __name__ == '__main__':
