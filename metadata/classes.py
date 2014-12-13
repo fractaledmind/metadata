@@ -12,11 +12,8 @@ import utils
 class MDAttribute(object):
     """Represents an OS X Spotlight Metadata Attribute
 
-    You probably shouldn't use this class directly, but via
-    :mod:`~metadata.attributes`.
-
-    :param info: `id`, `name`, `description`, and `aliases` for attribute.
-    :type info: :class:`dict`
+    :param name: Spotlight name for attribute.
+    :type name: ``unicode``
     :param ignore_case: ignore case in :class:`MDComparison`.
     :type ignore_case: :class:`Boolean`
     :param ignore_diacritics: ignore diacritics in :class:`MDComparison`.
@@ -24,16 +21,28 @@ class MDAttribute(object):
 
     """
 
-    def __init__(self, info, ignore_case=True, ignore_diacritics=True):
+    def __init__(self, name, ignore_case=True, ignore_diacritics=True):
+        self.name = name
         self._ignore_case = ignore_case
         self._ignore_diacritics = ignore_diacritics
-        # set data attributes from ``info`` dictionary
-        for k, v in info.items():
-            setattr(self, k, v)
-        self.key = utils.clean_attribute(self.id)
+        self.key = utils.clean_attribute(self.name)
 
     def info(self):
-        return self.__dict__
+        """Dictionary of metadata attribute information.
+
+        :returns: `description`, `aliases`, `id`, and `name` of instance.
+        :rtype: ``dict``
+
+        """
+        keys = ('id', 'name', 'description', 'aliases')
+        item_cmd = "mdimport -A | grep '{}'".format(self.name)
+        item_data = utils.run_process(item_cmd)
+        if item_data:
+            item_data = [item.replace("'", "")
+                         for item in item_data[0].split('\t\t')]
+            return dict(zip(keys, item_data))
+        else:
+            return item_data
 
     # Representation Magic Methods  -------------------------------------------
 
@@ -49,7 +58,7 @@ class MDAttribute(object):
         object.
 
         """
-        return utils.decode(self.id)
+        return utils.decode(self.name)
 
     # Modifier Properties  ----------------------------------------------------
 

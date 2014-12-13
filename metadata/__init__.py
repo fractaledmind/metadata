@@ -38,7 +38,7 @@ def attributes_generator():
 __module = sys.modules[__name__]
 for __info in attributes_generator():
     __name = utils.clean_attribute(__info['id'])
-    setattr(__module, __name, MDAttribute(__info))
+    setattr(__module, __name, MDAttribute(__info['id']))
 
 # set ``attributes`` var, filtering out non metadata
 attributes = [attr
